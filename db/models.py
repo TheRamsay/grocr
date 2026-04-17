@@ -1,4 +1,5 @@
-from sqlalchemy import Column, String, Float, Integer, Text, create_engine
+from sqlalchemy import Column, String, Float, Integer, Text, DateTime, create_engine
+from datetime import datetime
 from sqlalchemy.orm import DeclarativeBase, Session
 from settings import get_settings
 
@@ -35,6 +36,18 @@ class StoreToken(Base):
     store = Column(String, primary_key=True)  # e.g. "albert"
     access_token = Column(Text)
     refresh_token = Column(String)
+
+
+class SyncLog(Base):
+    __tablename__ = "sync_log"
+
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    store = Column(String, nullable=False)
+    started_at = Column(DateTime, default=datetime.utcnow)
+    finished_at = Column(DateTime)
+    new_receipts = Column(Integer, default=0)
+    status = Column(String, nullable=False)  # ok | error
+    error = Column(Text)
 
 
 def get_engine():
