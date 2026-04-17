@@ -1,0 +1,7 @@
+albert:
+  base_url: "https://albertloyaltycz-albert-service-app-prod.delhaize.eu"
+  auth_url: "https://albertloyaltycz-auth-service-prod.delhaize.eu"
+  app_version: "7.0.1"
+  build_version: "7066"
+  # client_id:client_secret from app binary — not a user secret, but not committed either
+  # put ALBERT_CLIENT_CREDENTIALS in .env
