@@ -27,7 +27,7 @@ class Settings(BaseSettings):
 
     albert_token: str = ""
     albert_refresh_token: str = ""
-    albert_client_credentials: str = "Basic REDACTED=="
+    albert_client_credentials: str = ""
 
     lidl_refresh_token: str = ""
     lidl_country: str = "CZ"
