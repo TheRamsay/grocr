@@ -10,11 +10,14 @@
       "title": "Total Spent (CZK)",
       "type": "stat",
       "gridPos": { "x": 0, "y": 0, "w": 4, "h": 4 },
-      "datasource": "grocr",
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "PB5DC7C9C6CD6B974" },
       "options": { "colorMode": "value", "graphMode": "none", "textMode": "auto" },
       "fieldConfig": { "defaults": { "unit": "short", "decimals": 0 } },
       "targets": [{
+        "refId": "A",
         "rawSql": "SELECT SUM(total_czk) AS value FROM receipts",
+        "rawQuery": true,
+        "editorMode": "code",
         "format": "table"
       }]
     },
@@ -23,10 +26,13 @@
       "title": "Total Receipts",
       "type": "stat",
       "gridPos": { "x": 4, "y": 0, "w": 4, "h": 4 },
-      "datasource": "grocr",
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "PB5DC7C9C6CD6B974" },
       "options": { "colorMode": "value", "graphMode": "none" },
       "targets": [{
+        "refId": "A",
         "rawSql": "SELECT COUNT(*) AS value FROM receipts",
+        "rawQuery": true,
+        "editorMode": "code",
         "format": "table"
       }]
     },
@@ -35,11 +41,14 @@
       "title": "Avg Basket Size (CZK)",
       "type": "stat",
       "gridPos": { "x": 8, "y": 0, "w": 4, "h": 4 },
-      "datasource": "grocr",
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "PB5DC7C9C6CD6B974" },
       "options": { "colorMode": "value", "graphMode": "none" },
       "fieldConfig": { "defaults": { "unit": "short", "decimals": 1 } },
       "targets": [{
+        "refId": "A",
         "rawSql": "SELECT ROUND(AVG(total_czk)::numeric, 1) AS value FROM receipts",
+        "rawQuery": true,
+        "editorMode": "code",
         "format": "table"
       }]
     },
@@ -48,20 +57,26 @@
       "title": "Spend by Store",
       "type": "piechart",
       "gridPos": { "x": 12, "y": 0, "w": 6, "h": 8 },
-      "datasource": "grocr",
-      "options": { "legendDisplayMode": "list", "pieType": "pie" },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "PB5DC7C9C6CD6B974" },
+      "options": {
+        "pieType": "donut",
+        "displayLabels": ["name", "percent"],
+        "legend": { "displayMode": "list", "placement": "bottom", "showLegend": true }
+      },
       "targets": [{
-        "rawSql": "SELECT store, SUM(total_czk) AS total FROM receipts GROUP BY store ORDER BY total DESC",
+        "refId": "A",
+        "rawSql": "SELECT store, ROUND(SUM(total_czk)::numeric, 0) AS \"CZK\" FROM receipts GROUP BY store ORDER BY \"CZK\" DESC",
+        "rawQuery": true,
+        "editorMode": "code",
         "format": "table"
-      }],
-      "transformations": [{ "id": "labelsToFields", "options": {} }]
+      }]
     },
     {
       "id": 5,
       "title": "Weekly Spend (CZK)",
       "type": "timeseries",
       "gridPos": { "x": 0, "y": 4, "w": 12, "h": 8 },
-      "datasource": "grocr",
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "PB5DC7C9C6CD6B974" },
       "fieldConfig": {
         "defaults": {
           "unit": "short",
@@ -69,31 +84,42 @@
         }
       },
       "targets": [{
+        "refId": "A",
         "rawSql": "SELECT DATE_TRUNC('week', date::timestamptz) AS time, SUM(total_czk) AS \"CZK\" FROM receipts WHERE date IS NOT NULL GROUP BY 1 ORDER BY 1",
+        "rawQuery": true,
+        "editorMode": "code",
         "format": "time_series"
       }]
     },
     {
       "id": 6,
       "title": "Top 20 Most Bought Products",
-      "type": "barchart",
+      "type": "bargauge",
       "gridPos": { "x": 0, "y": 12, "w": 12, "h": 10 },
-      "datasource": "grocr",
-      "options": { "orientation": "horizontal", "legend": { "displayMode": "hidden" } },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "PB5DC7C9C6CD6B974" },
+      "options": { "orientation": "horizontal", "reduceOptions": { "values": true, "calcs": [], "fields": "" }, "displayMode": "gradient" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } } },
       "targets": [{
+        "refId": "A",
         "rawSql": "SELECT name, COUNT(*) AS purchases FROM receipt_items WHERE name IS NOT NULL AND name != '' GROUP BY name ORDER BY purchases DESC LIMIT 20",
+        "rawQuery": true,
+        "editorMode": "code",
         "format": "table"
       }]
     },
     {
       "id": 7,
       "title": "Top 20 by Total Spend (CZK)",
-      "type": "barchart",
+      "type": "bargauge",
       "gridPos": { "x": 12, "y": 12, "w": 12, "h": 10 },
-      "datasource": "grocr",
-      "options": { "orientation": "horizontal", "legend": { "displayMode": "hidden" } },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "PB5DC7C9C6CD6B974" },
+      "options": { "orientation": "horizontal", "reduceOptions": { "values": true, "calcs": [], "fields": "" }, "displayMode": "gradient" },
+      "fieldConfig": { "defaults": { "unit": "short", "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "green", "value": null }] } } },
       "targets": [{
+        "refId": "A",
         "rawSql": "SELECT name, ROUND(SUM(total_price_czk)::numeric, 0) AS total FROM receipt_items WHERE name IS NOT NULL AND name != '' GROUP BY name ORDER BY total DESC LIMIT 20",
+        "rawQuery": true,
+        "editorMode": "code",
         "format": "table"
       }]
     },
@@ -102,22 +128,46 @@
       "title": "Shopping Hour of Day",
       "type": "barchart",
       "gridPos": { "x": 0, "y": 22, "w": 12, "h": 8 },
-      "datasource": "grocr",
-      "options": { "legend": { "displayMode": "hidden" } },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "PB5DC7C9C6CD6B974" },
+      "options": { "xField": "hour" },
+      "fieldConfig": { "defaults": { "unit": "short" } },
       "targets": [{
-        "rawSql": "SELECT EXTRACT(HOUR FROM date::timestamptz)::int AS hour, COUNT(*) AS trips FROM receipts WHERE date IS NOT NULL GROUP BY hour ORDER BY hour",
+        "refId": "A",
+        "rawSql": "SELECT LPAD(EXTRACT(HOUR FROM date::timestamptz)::int::text, 2, '0') || ':00' AS hour, ROUND(COUNT(*)::numeric, 0) AS \"Trips\" FROM receipts WHERE date IS NOT NULL GROUP BY 1 ORDER BY 1",
+        "rawQuery": true,
+        "editorMode": "code",
         "format": "table"
       }]
     },
     {
       "id": 9,
       "title": "Shopping Day of Week",
-      "type": "barchart",
+      "type": "bargauge",
       "gridPos": { "x": 12, "y": 22, "w": 12, "h": 8 },
-      "datasource": "grocr",
-      "options": { "legend": { "displayMode": "hidden" } },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "PB5DC7C9C6CD6B974" },
+      "options": { "orientation": "horizontal", "reduceOptions": { "values": true, "calcs": [], "fields": "" }, "displayMode": "gradient" },
+      "fieldConfig": { "defaults": { "color": { "mode": "thresholds" }, "thresholds": { "mode": "absolute", "steps": [{ "color": "blue", "value": null }] } } },
       "targets": [{
-        "rawSql": "SELECT TO_CHAR(date::timestamptz, 'Day') AS day, EXTRACT(DOW FROM date::timestamptz)::int AS dow, COUNT(*) AS trips FROM receipts WHERE date IS NOT NULL GROUP BY day, dow ORDER BY dow",
+        "refId": "A",
+        "rawSql": "SELECT TRIM(TO_CHAR(date::timestamptz, 'Day')) AS day, COUNT(*) AS trips FROM receipts WHERE date IS NOT NULL GROUP BY 1, EXTRACT(DOW FROM date::timestamptz) ORDER BY EXTRACT(DOW FROM date::timestamptz)",
+        "rawQuery": true,
+        "editorMode": "code",
+        "format": "table"
+      }]
+    },
+    {
+      "id": 11,
+      "title": "Recent Shopping Trips",
+      "type": "table",
+      "gridPos": { "x": 0, "y": 30, "w": 24, "h": 10 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "PB5DC7C9C6CD6B974" },
+      "options": { "sortBy": [{ "displayName": "Date", "desc": true }] },
+      "fieldConfig": { "defaults": { "unit": "short" } },
+      "targets": [{
+        "refId": "A",
+        "rawSql": "SELECT TO_CHAR(date::timestamptz, 'YYYY-MM-DD HH24:MI') AS \"Date\", store AS \"Store\", ROUND(total_czk::numeric, 0) AS \"CZK\" FROM receipts WHERE date IS NOT NULL ORDER BY date DESC LIMIT 50",
+        "rawQuery": true,
+        "editorMode": "code",
         "format": "table"
       }]
     },
@@ -125,11 +175,15 @@
       "id": 10,
       "title": "Monthly Spend Trend",
       "type": "barchart",
-      "gridPos": { "x": 0, "y": 30, "w": 24, "h": 8 },
-      "datasource": "grocr",
+      "gridPos": { "x": 0, "y": 38, "w": 24, "h": 8 },
+      "datasource": { "type": "grafana-postgresql-datasource", "uid": "PB5DC7C9C6CD6B974" },
+      "options": { "xField": "month" },
       "fieldConfig": { "defaults": { "unit": "short" } },
       "targets": [{
+        "refId": "A",
         "rawSql": "SELECT TO_CHAR(DATE_TRUNC('month', date::timestamptz), 'YYYY-MM') AS month, ROUND(SUM(total_czk)::numeric, 0) AS \"CZK\" FROM receipts WHERE date IS NOT NULL GROUP BY 1 ORDER BY 1",
+        "rawQuery": true,
+        "editorMode": "code",
         "format": "table"
       }]
     }

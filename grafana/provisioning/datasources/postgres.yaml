@@ -11,4 +11,5 @@ datasources:
     jsonData:
       sslmode: disable
       postgresVersion: 1600
+      database: grocery
     isDefault: true
