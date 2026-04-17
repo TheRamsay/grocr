@@ -1,12 +1,25 @@
 import json
 from fastapi import FastAPI, HTTPException
+from fastapi.routing import APIRoute
 from pydantic import BaseModel
+from scalar_fastapi import get_scalar_api_reference
 
 from settings import get_settings
 from adapters.albert import AlbertAdapter, refresh_access_token
 from db.models import init_db, get_session, Receipt as DBReceipt, ReceiptItem as DBReceiptItem, StoreToken
 
-app = FastAPI(title="grocery-aggregator")
+app = FastAPI(
+    title="grocr",
+    description="Unified API aggregating Czech grocery store receipts, items, and coupons.",
+    version="0.1.0",
+    docs_url=None,
+    redoc_url=None,
+)
+
+
+@app.get("/docs", include_in_schema=False)
+def scalar_docs():
+    return get_scalar_api_reference(openapi_url="/openapi.json", title="grocr")
 engine = init_db()
 
 
