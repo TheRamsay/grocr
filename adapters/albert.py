@@ -15,15 +15,15 @@ def _jwt_exp(token: str) -> int:
 def refresh_access_token(refresh_token: str) -> tuple[str, str]:
     """Returns (new_access_token, new_refresh_token)."""
     s = get_settings()
-    cfg = load_config()["albert"]
+    cfg = load_config().albert
     resp = requests.post(
-        f"{cfg['auth_url']}/oauth/token",
+        f"{cfg.auth_url}/oauth/token",
         data={"grant_type": "refresh_token", "refresh_token": refresh_token},
         headers={
             "Authorization": s.albert_client_credentials,
             "Content-Type": "application/x-www-form-urlencoded",
             "Accept": "application/json, text/plain, */*",
-            "User-Agent": f"AlbertApp/{cfg['build_version']} CFNetwork/3860.600.12 Darwin/25.5.0",
+            "User-Agent": f"AlbertApp/{cfg.build_version} CFNetwork/3860.600.12 Darwin/25.5.0",
         },
     )
     resp.raise_for_status()
@@ -35,7 +35,7 @@ class AlbertAdapter:
     def __init__(self, access_token: str, refresh_token: str | None = None):
         self.access_token = access_token
         self.refresh_token = refresh_token
-        self._cfg = load_config()["albert"]
+        self._cfg = load_config().albert
         self.session = requests.Session()
         self._set_auth(access_token)
 
@@ -43,11 +43,11 @@ class AlbertAdapter:
         self.session.headers.update({
             "Accept": "application/json, text/plain, */*",
             "Accept-Language": "en-GB,en;q=0.9",
-            "appversion": self._cfg["app_version"],
-            "buildversion": self._cfg["build_version"],
-            "x-app-build-number": self._cfg["build_version"],
+            "appversion": self._cfg.app_version,
+            "buildversion": self._cfg.build_version,
+            "x-app-build-number": self._cfg.build_version,
             "User-Agent": json.dumps({
-                "buildNumber": int(self._cfg["build_version"]),
+                "buildNumber": int(self._cfg.build_version),
                 "platform": "ios",
                 "platformVersion": "26.5",
                 "model": "unknown",
@@ -71,7 +71,7 @@ class AlbertAdapter:
     def get_receipts(self, page: int = 1, page_size: int = 20) -> list[Receipt]:
         self._ensure_valid_token()
         resp = self.session.get(
-            f"{self._cfg['base_url']}/customer/purchases/v2",
+            f"{self._cfg.base_url}/customer/purchases/v2",
             params={"pageNumber": page, "pageSize": page_size},
         )
         resp.raise_for_status()
@@ -90,7 +90,7 @@ class AlbertAdapter:
     def get_receipt_items(self, receipt_id: str) -> list[ReceiptItem]:
         self._ensure_valid_token()
         resp = self.session.get(
-            f"{self._cfg['base_url']}/customer/purchase/detail",
+            f"{self._cfg.base_url}/customer/purchase/detail",
             params={"receiptNumber": receipt_id},
         )
         resp.raise_for_status()
